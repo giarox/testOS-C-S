@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: crawl4ai-api
+    env: docker
+    image:
+      url: docker.io/unclecode/crawl4ai:latest
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 11235
+    disk:
+      name: crawl4ai-data
+      mountPath: /root/.crawl4ai
+      sizeGB: 1
