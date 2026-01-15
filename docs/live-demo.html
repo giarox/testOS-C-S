@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crawl4AI Live Demo - Test the Scraper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .demo-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .status-box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .status-box.show {
+            display: block;
+        }
+
+        .status-box.info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+        }
+
+        .status-box.success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+
+        .status-box.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status-box.warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-config {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .quick-link {
+            padding: 8px 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .quick-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .markdown-preview {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .markdown-preview h1, .markdown-preview h2, .markdown-preview h3 {
+            color: #667eea;
+            margin: 20px 0 10px 0;
+        }
+
+        .markdown-preview p {
+            margin: 10px 0;
+        }
+
+        .markdown-preview strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        footer {
+            background: #2d2d2d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 Crawl4AI Live Demo</h1>
+            <p>Test the scraper with any URL - powered by Docker API</p>
+        </header>
+
+        <div class="content">
+            <!-- API Configuration -->
+            <div class="api-config">
+                <h3>🔧 API Configuration</h3>
+                <div class="input-group">
+                    <label for="apiUrl">Docker API URL:</label>
+                    <input type="url" id="apiUrl" value="http://localhost:11235" placeholder="http://localhost:11235">
+                    <small style="color: #666; margin-top: 5px; display: block;">
+                        ℹ️ Make sure your Crawl4AI Docker container is running: <code>docker ps --filter name=crawl4ai</code>
+                    </small>
+                </div>
+            </div>
+
+            <!-- Main Demo Section -->
+            <div class="demo-section">
+                <h2>🎯 Test URL Scraping</h2>
+
+                <div class="input-group">
+                    <label for="targetUrl">Target URL:</label>
+                    <input type="url" id="targetUrl" value="https://www.lidl.it/l/it/volantini/offerte-valide-dal-19-01-al-25-01-volantino-settimanale-9e63be/view/flyer/page/1" placeholder="Enter URL to scrape...">
+                </div>
+
+                <div class="quick-links">
+                    <span style="font-weight: 600; margin-right: 10px;">Quick Examples:</span>
+                    <div class="quick-link" onclick="setUrl('https://www.lidl.it/l/it/volantini/offerte-valide-dal-19-01-al-25-01-volantino-settimanale-9e63be/view/flyer/page/1')">
+                        🛒 Lidl Flyer
+                    </div>
+                    <div class="quick-link" onclick="setUrl('https://example.com')">
+                        📄 Example.com
+                    </div>
+                    <div class="quick-link" onclick="setUrl('https://news.ycombinator.com')">
+                        💻 Hacker News
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="testCrawl()" id="crawlBtn">
+                        🚀 Test Crawl4AI
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResults()" style="margin-left: 10px;">
+                        🗑️ Clear Results
+                    </button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusBox" class="status-box"></div>
+
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" style="display: none;">
+                    <div class="spinner"></div>
+                    <p style="text-align: center; color: #666;">Crawling in progress... This may take a few seconds</p>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsContainer" class="results-container">
+                <h2>📊 Crawl Results</h2>
+
+                <!-- Stats -->
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('markdown')">📝 Markdown</div>
+                    <div class="tab" onclick="showTab('html')">🌐 HTML</div>
+                    <div class="tab" onclick="showTab('json')">📦 JSON Response</div>
+                    <div class="tab" onclick="showTab('metadata')">ℹ️ Metadata</div>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="markdown" class="tab-content active">
+                    <h3>Clean Markdown Content</h3>
+                    <div id="markdownContent" class="markdown-preview"></div>
+                </div>
+
+                <div id="html" class="tab-content">
+                    <h3>Raw HTML</h3>
+                    <div class="code-block">
+                        <pre id="htmlContent"></pre>
+                    </div>
+                </div>
+
+                <div id="json" class="tab-content">
+                    <h3>Full JSON Response</h3>
+                    <div class="code-block">
+                        <pre id="jsonContent"></pre>
+                    </div>
+                </div>
+
+                <div id="metadata" class="tab-content">
+                    <h3>Page Metadata</h3>
+                    <div id="metadataContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ using <a href="https://github.com/unclecode/crawl4ai" style="color: #667eea;">Crawl4AI</a></p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                <a href="index.html" style="color: white;">← Back to Main Page</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let currentResult = null;
+
+        function setUrl(url) {
+            document.getElementById('targetUrl').value = url;
+        }
+
+        function showStatus(message, type = 'info') {
+            const statusBox = document.getElementById('statusBox');
+            statusBox.className = `status-box ${type} show`;
+            statusBox.innerHTML = message;
+        }
+
+        function hideStatus() {
+            const statusBox = document.getElementById('statusBox');
+            statusBox.className = 'status-box';
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+
+        function clearResults() {
+            document.getElementById('resultsContainer').classList.remove('show');
+            hideStatus();
+            currentResult = null;
+        }
+
+        async function testCrawl() {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            const targetUrl = document.getElementById('targetUrl').value.trim();
+            const crawlBtn = document.getElementById('crawlBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (!targetUrl) {
+                showStatus('⚠️ Please enter a URL to crawl', 'warning');
+                return;
+            }
+
+            // Disable button and show loading
+            crawlBtn.disabled = true;
+            loadingSpinner.style.display = 'block';
+            hideStatus();
+            clearResults();
+
+            try {
+                showStatus('🔍 Connecting to Crawl4AI Docker API...', 'info');
+
+                const response = await fetch(`${apiUrl}/crawl`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        urls: [targetUrl],
+                        priority: 10,
+                        wait_time: 3,
+                        screenshot: false,
+                        js_code: [
+                            "window.scrollTo(0, document.body.scrollHeight / 2);",
+                            "await new Promise(r => setTimeout(r, 1000));",
+                            "window.scrollTo(0, document.body.scrollHeight);",
+                            "await new Promise(r => setTimeout(r, 1000));"
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                currentResult = data;
+
+                if (data.results && data.results.length > 0) {
+                    const result = data.results[0];
+                    showStatus('✅ Crawl completed successfully!', 'success');
+                    displayResults(result);
+                } else {
+                    throw new Error('No results returned from API');
+                }
+
+            } catch (error) {
+                console.error('Crawl error:', error);
+
+                let errorMessage = `❌ <strong>Crawl Failed:</strong> ${error.message}<br><br>`;
+
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += `
+                        <strong>Possible causes:</strong><br>
+                        • Docker container not running (run: <code>docker ps --filter name=crawl4ai</code>)<br>
+                        • Wrong API URL (check: <code>${apiUrl}</code>)<br>
+                        • CORS issues (try accessing from <code>http://localhost</code>)<br>
+                        • Port 11235 not accessible<br><br>
+                        <strong>Quick fix:</strong><br>
+                        1. Open terminal<br>
+                        2. Run: <code>docker run -d -p 11235:11235 --shm-size=1g unclecode/crawl4ai:latest</code><br>
+                        3. Wait 30 seconds<br>
+                        4. Try again
+                    `;
+                } else if (error.message.includes('NetworkError') || error.message.includes('CORS')) {
+                    errorMessage += `
+                        <strong>CORS Error:</strong><br>
+                        • GitHub Pages cannot directly access localhost<br>
+                        • Open this page locally: Save HTML and open in browser<br>
+                        • Or deploy API publicly (not recommended for security)
+                    `;
+                }
+
+                showStatus(errorMessage, 'error');
+            } finally {
+                crawlBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function displayResults(result) {
+            // Show results container
+            document.getElementById('resultsContainer').classList.add('show');
+
+            // Display stats
+            const statsGrid = document.getElementById('statsGrid');
+            const markdownLength = result.markdown ? result.markdown.length : 0;
+            const htmlLength = result.html ? result.html.length : 0;
+
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${markdownLength.toLocaleString()}</div>
+                    <div class="stat-label">Markdown Chars</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${htmlLength.toLocaleString()}</div>
+                    <div class="stat-label">HTML Chars</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${result.success ? '✅' : '❌'}</div>
+                    <div class="stat-label">Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${result.status_code || 'N/A'}</div>
+                    <div class="stat-label">HTTP Code</div>
+                </div>
+            `;
+
+            // Display markdown
+            const markdownContent = document.getElementById('markdownContent');
+            if (result.markdown) {
+                // Convert markdown to basic HTML for display
+                const htmlContent = result.markdown
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
+                    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+                    .replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+
+                markdownContent.innerHTML = htmlContent;
+            } else {
+                markdownContent.innerHTML = '<p style="color: #999;">No markdown content available</p>';
+            }
+
+            // Display HTML
+            document.getElementById('htmlContent').textContent =
+                result.html ? result.html.substring(0, 10000) + (result.html.length > 10000 ? '\n\n... (truncated)' : '') : 'No HTML available';
+
+            // Display JSON
+            document.getElementById('jsonContent').textContent =
+                JSON.stringify(currentResult, null, 2);
+
+            // Display metadata
+            const metadataContent = document.getElementById('metadataContent');
+            if (result.metadata) {
+                let metadataHtml = '<div class="code-block"><pre>';
+                for (const [key, value] of Object.entries(result.metadata)) {
+                    metadataHtml += `<strong>${key}:</strong> ${JSON.stringify(value, null, 2)}\n`;
+                }
+                metadataHtml += '</pre></div>';
+                metadataContent.innerHTML = metadataHtml;
+            } else {
+                metadataContent.innerHTML = '<p style="color: #999;">No metadata available</p>';
+            }
+
+            // Scroll to results
+            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Check API health on page load
+        window.addEventListener('load', async () => {
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+
+            try {
+                const response = await fetch(`${apiUrl}/health`, { method: 'GET' });
+                if (response.ok) {
+                    showStatus(`✅ Docker API is ready at ${apiUrl}`, 'success');
+                }
+            } catch (error) {
+                showStatus(`⚠️ Cannot connect to Docker API at ${apiUrl}. Make sure the container is running.`, 'warning');
+            }
+        });
+    </script>
+</body>
+</html>
