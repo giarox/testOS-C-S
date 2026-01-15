@@ -54,6 +54,12 @@ case "${1:-all}" in
     advanced)
         run_test "test_advanced.py" "Advanced Test"
         ;;
+    lidl)
+        run_test "test_lidl_scraper.py" "Lidl Flyer Scraper (Real World Test)"
+        ;;
+    demo)
+        run_test "demo_code.py" "Code Demonstration (No Browser Required)"
+        ;;
     all)
         echo "Running all tests..."
         run_test "test_basic.py" "Basic Test"
@@ -62,19 +68,25 @@ case "${1:-all}" in
         run_test "test_advanced.py" "Advanced Test"
         advanced_result=$?
 
+        run_test "test_lidl_scraper.py" "Lidl Flyer Scraper"
+        lidl_result=$?
+
         echo ""
         echo "=========================================="
         echo "Test Summary"
         echo "=========================================="
         echo "Basic Test: $([ $basic_result -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
         echo "Advanced Test: $([ $advanced_result -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+        echo "Lidl Scraper: $([ $lidl_result -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
         ;;
     *)
-        echo "Usage: $0 [basic|advanced|all]"
+        echo "Usage: $0 [basic|advanced|lidl|demo|all]"
         echo ""
         echo "Options:"
         echo "  basic    - Run basic test only"
         echo "  advanced - Run advanced test only"
+        echo "  lidl     - Run Lidl flyer scraper (real-world test)"
+        echo "  demo     - Show code examples (no browser needed)"
         echo "  all      - Run all tests (default)"
         exit 1
         ;;

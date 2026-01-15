@@ -62,16 +62,73 @@ source venv/bin/activate
 python test_advanced.py
 ```
 
+### 3. Lidl Flyer Scraper (`test_lidl_scraper.py`) - Real World Example
+Real-world scraper for Lidl Italy weekly flyers. Extracts products, prices, and offers from retail catalogs.
+
+```bash
+# Activate virtual environment first
+source venv/bin/activate
+
+# Run the scraper
+python test_lidl_scraper.py
+
+# Or use the test runner
+./run_tests.sh lidl
+```
+
+**Features demonstrated:**
+- Scraping multi-page catalogs with pagination
+- Structured data extraction (products, prices, discounts)
+- JavaScript execution for lazy-loaded content
+- Screenshot capture for verification
+- JSON export of structured data
+- Markdown content extraction
+
+### 4. Code Demonstration (`demo_code.py`)
+Comprehensive code examples showing all major Crawl4AI features. Runs without a browser.
+
+```bash
+# No browser needed for this
+python demo_code.py
+```
+
+## Quick Start
+
+```bash
+# Activate environment
+source venv/bin/activate
+
+# Run specific test
+./run_tests.sh basic     # Basic crawling
+./run_tests.sh advanced  # Advanced features
+./run_tests.sh lidl      # Real-world Lidl scraper
+./run_tests.sh demo      # Code examples (no browser)
+./run_tests.sh all       # Run all tests
+```
+
 ## Project Structure
 
 ```
 crawl4ai-tests/
-├── README.md
-├── requirements.txt
-├── test_basic.py
-├── test_advanced.py
-└── output/
-    └── (generated test outputs)
+├── README.md                    # This file
+├── SETUP_NOTES.md              # Detailed setup and troubleshooting
+├── requirements.txt            # Python dependencies
+├── run_tests.sh                # Test runner script
+├── install_browser.sh          # Automated browser installer
+├── manual_browser_install.sh   # Manual offline browser installation
+├── test_basic.py               # Basic crawling test
+├── test_advanced.py            # Advanced features test
+├── test_lidl_scraper.py        # Real-world Lidl flyer scraper
+├── demo_code.py                # Code examples (no browser needed)
+├── venv/                       # Virtual environment (pre-configured)
+└── output/                     # Generated test outputs
+    ├── basic_test_output.md
+    ├── advanced_*_output.md
+    └── lidl_scraper/           # Lidl scraper results
+        ├── *.json              # Structured product data
+        ├── *.html              # Raw HTML files
+        ├── *.md                # Clean Markdown
+        └── *_screenshot.png    # Page screenshots
 ```
 
 ## Documentation
