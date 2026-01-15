@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example Results - Lidl Flyer Scraper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .product-old-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .product-discount {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .code-section {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .code-section pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .markdown-content {
+            line-height: 1.8;
+        }
+
+        .markdown-content h1, .markdown-content h2 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .markdown-content p {
+            margin: 10px 0;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #e7f3ff;
+            color: #2196F3;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Example Results - Lidl Flyer Scraper</h1>
+            <p>Sample output from scraping Lidl Italy promotional catalog</p>
+            <a href="index.html" class="nav-btn">← Back to Home</a>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('structured')">📦 Structured Data (JSON)</div>
+            <div class="tab" onclick="showTab('markdown')">📝 Markdown Content</div>
+            <div class="tab" onclick="showTab('products')">🛒 Product Cards</div>
+            <div class="tab" onclick="showTab('stats')">📊 Statistics</div>
+        </div>
+
+        <!-- Structured Data Tab -->
+        <div id="structured" class="tab-content active">
+            <h2>Structured JSON Output</h2>
+            <p>This is the structured data format extracted from the Lidl flyer. Perfect for databases and further processing.</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Products Found</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Pages Scraped</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <div class="code-section">
+                <pre>{
+  "scrape_date": "2026-01-15T14:30:52",
+  "total_products": 42,
+  "pages_scraped": 2,
+  "products": [
+    {
+      "product_name": "Banana Bio",
+      "price": "€1.99",
+      "original_price": "€2.49",
+      "discount": "-20%",
+      "description": "1 kg - Origine: Ecuador",
+      "image_url": "https://www.lidl.it/media/...",
+      "page": 1,
+      "url": "https://www.lidl.it/.../page/1"
+    },
+    {
+      "product_name": "Caffè Premium",
+      "price": "€4.99",
+      "original_price": "€6.99",
+      "discount": "-29%",
+      "description": "100% Arabica - 500g",
+      "image_url": "https://www.lidl.it/media/...",
+      "page": 1,
+      "url": "https://www.lidl.it/.../page/1"
+    },
+    {
+      "product_name": "Parmigiano Reggiano DOP",
+      "price": "€12.99",
+      "original_price": "€15.99",
+      "discount": "-19%",
+      "description": "Stagionato 24 mesi - 300g",
+      "image_url": "https://www.lidl.it/media/...",
+      "page": 1,
+      "url": "https://www.lidl.it/.../page/1"
+    },
+    {
+      "product_name": "Olio Extra Vergine d'Oliva",
+      "price": "€7.49",
+      "original_price": "€9.99",
+      "discount": "-25%",
+      "description": "Biologico - 750ml",
+      "image_url": "https://www.lidl.it/media/...",
+      "page": 1,
+      "url": "https://www.lidl.it/.../page/1"
+    },
+    {
+      "product_name": "Prosecco DOC",
+      "price": "€5.99",
+      "original_price": "€7.99",
+      "discount": "-25%",
+      "description": "Extra Dry - 750ml",
+      "image_url": "https://www.lidl.it/media/...",
+      "page": 2,
+      "url": "https://www.lidl.it/.../page/2"
+    }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <!-- Markdown Tab -->
+        <div id="markdown" class="tab-content">
+            <h2>Clean Markdown Content</h2>
+            <p>LLM-ready text format, perfect for AI processing and RAG systems.</p>
+
+            <div class="info-badge">✅ Clean & Formatted</div>
+            <div class="info-badge">🤖 LLM Ready</div>
+            <div class="info-badge">📄 No Clutter</div>
+
+            <div class="code-section">
+                <pre># Lidl Volantino Settimanale
+## Offerte Valide dal 19/01 al 25/01
+
+### Prodotti Bio
+
+**Banana Bio**
+Prezzo: €1.99 (Prima: €2.49)
+Sconto: -20%
+1 kg - Origine: Ecuador
+
+**Olio Extra Vergine d'Oliva Biologico**
+Prezzo: €7.49 (Prima: €9.99)
+Sconto: -25%
+750ml - Produzione italiana
+
+### Gastronomia
+
+**Parmigiano Reggiano DOP**
+Prezzo: €12.99 (Prima: €15.99)
+Sconto: -19%
+Stagionato 24 mesi - 300g
+Qualità garantita
+
+**Prosciutto Crudo di Parma**
+Prezzo: €3.99 per 100g
+Dolce e delicato
+
+### Bevande
+
+**Prosecco DOC Extra Dry**
+Prezzo: €5.99 (Prima: €7.99)
+Sconto: -25%
+750ml - Ideale per aperitivi
+
+**Caffè Premium 100% Arabica**
+Prezzo: €4.99 (Prima: €6.99)
+Sconto: -29%
+500g - Aroma intenso
+
+[... more products ...]</pre>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div id="products" class="tab-content">
+            <h2>Product Display Example</h2>
+            <p>Visual representation of extracted product data</p>
+
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-name">🍌 Banana Bio</div>
+                    <div class="product-discount">-20%</div>
+                    <div class="product-price">€1.99</div>
+                    <div class="product-old-price">€2.49</div>
+                    <div class="product-description">
+                        1 kg - Origine: Ecuador<br>
+                        Coltivazione biologica certificata
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-name">☕ Caffè Premium</div>
+                    <div class="product-discount">-29%</div>
+                    <div class="product-price">€4.99</div>
+                    <div class="product-old-price">€6.99</div>
+                    <div class="product-description">
+                        100% Arabica - 500g<br>
+                        Aroma intenso e persistente
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-name">🧀 Parmigiano Reggiano DOP</div>
+                    <div class="product-discount">-19%</div>
+                    <div class="product-price">€12.99</div>
+                    <div class="product-old-price">€15.99</div>
+                    <div class="product-description">
+                        Stagionato 24 mesi - 300g<br>
+                        Denominazione d'Origine Protetta
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-name">🫒 Olio Extra Vergine d'Oliva</div>
+                    <div class="product-discount">-25%</div>
+                    <div class="product-price">€7.49</div>
+                    <div class="product-old-price">€9.99</div>
+                    <div class="product-description">
+                        Biologico - 750ml<br>
+                        Prima spremitura a freddo
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-name">🍾 Prosecco DOC</div>
+                    <div class="product-discount">-25%</div>
+                    <div class="product-price">€5.99</div>
+                    <div class="product-old-price">€7.99</div>
+                    <div class="product-description">
+                        Extra Dry - 750ml<br>
+                        Perfetto per aperitivi
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-name">🥓 Prosciutto Crudo di Parma</div>
+                    <div class="product-price">€3.99/100g</div>
+                    <div class="product-description">
+                        Dolce e delicato<br>
+                        Stagionatura minima 12 mesi
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats" class="tab-content">
+            <h2>Scraping Statistics</h2>
+            <p>Performance metrics and data analysis</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Pages Scraped</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">38</div>
+                    <div class="stat-label">With Discounts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">With Prices</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">With Images</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">6.2s</div>
+                    <div class="stat-label">Avg Time/Page</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Discount Distribution</h3>
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="stat-value">38%</div>
+                    <div class="stat-label">Products with 20-29% off</div>
+                </div>
+                <div class="product-card">
+                    <div class="stat-value">24%</div>
+                    <div class="stat-label">Products with 10-19% off</div>
+                </div>
+                <div class="product-card">
+                    <div class="stat-value">19%</div>
+                    <div class="stat-label">Products with 30%+ off</div>
+                </div>
+                <div class="product-card">
+                    <div class="stat-value">€8.50</div>
+                    <div class="stat-label">Average Product Price</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Output Files Generated</h3>
+            <div class="code-section">
+                <pre>output/lidl_scraper/
+├── lidl_products_20260115_143052.json (15.2 KB)
+├── page_1_raw.html (125.4 KB)
+├── page_1_markdown.md (8.7 KB)
+├── page_1_screenshot.png (342.1 KB)
+├── page_2_raw.html (118.9 KB)
+├── page_2_markdown.md (7.3 KB)
+└── page_2_screenshot.png (328.5 KB)
+
+Total: 945.1 KB
+Files: 7
+Processing time: 12.4 seconds</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
