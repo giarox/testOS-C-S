@@ -22,14 +22,123 @@ The Playwright browser download attempts to fetch from these URLs, all blocked:
 
 Error: `Download failed: server returned code 403 body 'Host not allowed'`
 
-## Workarounds for Different Environments
+## Comprehensive Solutions for Browser Installation Issues
 
-### Option 1: Docker Deployment (Recommended)
-Use the official Crawl4AI Docker image which includes all browsers:
+### Solution 1: Environment Variables for Proxy/Network Configuration
+
+If you're behind a firewall or corporate proxy, configure these environment variables:
 
 ```bash
+# Activate venv
+source venv/bin/activate
+
+# Configure proxy for downloads
+export HTTPS_PROXY=https://your-proxy:port
+export HTTP_PROXY=http://your-proxy:port
+
+# Increase timeout for slow connections (milliseconds)
+export PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=60000
+
+# Then install
+crawl4ai-setup
+# Or directly:
+python -m playwright install chromium
+```
+
+**Custom Download Host** (for internal mirror/artifact repository):
+```bash
+export PLAYWRIGHT_DOWNLOAD_HOST=http://your-mirror.com
+# Or per-browser:
+export PLAYWRIGHT_CHROMIUM_DOWNLOAD_HOST=http://your-mirror.com/chromium
+python -m playwright install chromium
+```
+
+**Custom Browser Storage Location**:
+```bash
+export PLAYWRIGHT_BROWSERS_PATH=$HOME/pw-browsers
+python -m playwright install chromium
+```
+
+### Solution 2: Manual Offline Browser Installation
+
+Download browsers on a machine with internet access, then transfer to restricted environment:
+
+**Step 1: Download browser archive**
+- URL format: `https://playwright.azureedge.net/builds/chromium/1200/chromium-linux.zip`
+- Replace `1200` with your Playwright version's browser build number
+- For other platforms: `chromium-mac.zip`, `chromium-win64.zip`
+
+**Step 2: Extract to Playwright cache directory**
+```bash
+# Create directory structure
+mkdir -p ~/.cache/ms-playwright/chromium-1200/chrome-linux
+
+# Extract downloaded archive
+unzip chromium-linux.zip -d ~/.cache/ms-playwright/chromium-1200/
+
+# Create marker files (REQUIRED for Playwright to recognize installation)
+touch ~/.cache/ms-playwright/chromium-1200/INSTALLATION_COMPLETE
+touch ~/.cache/ms-playwright/chromium-1200/DEPENDENCIES_VALIDATED
+```
+
+**Step 3: Verify installation**
+```bash
+playwright install --dry-run chromium
+```
+
+### Solution 3: Use Crawl4AI's Bundled Browser Configuration
+
+Configure Crawl4AI to use Playwright's bundled Chromium (no system Chrome needed):
+
+```python
+from crawl4ai import AsyncWebCrawler
+from crawl4ai.async_configs import BrowserConfig
+
+# Use bundled Chromium (most portable)
+browser_config = BrowserConfig(
+    browser_type="chromium",
+    chrome_channel=None,  # Use bundled browser, not system Chrome
+    headless=True
+)
+
+async with AsyncWebCrawler(config=browser_config, verbose=True) as crawler:
+    result = await crawler.arun(url="https://example.com")
+```
+
+**Alternative channels** (if system browsers are available):
+- `chrome_channel="chrome"` - Use system Google Chrome
+- `chrome_channel="msedge"` - Use Microsoft Edge
+
+### Solution 4: Whitelist Required URLs
+
+Request your IT/network team to whitelist these domains:
+- `playwright.azureedge.net`
+- `playwright-akamai.azureedge.net`
+- `playwright-verizon.azureedge.net`
+- `cdn.playwright.dev`
+- `playwright.download.prss.microsoft.com`
+
+Then retry installation:
+```bash
+source venv/bin/activate
+crawl4ai-setup
+```
+
+### Solution 5: Docker Deployment (Recommended for Production)
+
+Use the official Crawl4AI Docker image which includes all browsers pre-installed:
+
+```bash
+# Pull latest image
 docker pull unclecode/crawl4ai:latest
-docker run -d -p 11235:11235 --name crawl4ai unclecode/crawl4ai:latest
+
+# Run with proper memory allocation
+docker run -d -p 11235:11235 --name crawl4ai \
+  --shm-size=1g \
+  unclecode/crawl4ai:latest
+
+# Access monitoring dashboard
+open http://localhost:11235/dashboard
 
 # Test via API
 curl http://localhost:11235/crawl \
@@ -37,38 +146,24 @@ curl http://localhost:11235/crawl \
   -d '{"urls": ["https://example.com"], "priority": 10}'
 ```
 
-### Option 2: Manual Browser Installation
-In environments without network restrictions:
+### Solution 6: Skip Browser Download During Installation
+
+If managing browsers separately or using Docker:
 
 ```bash
-# Activate venv
-source venv/bin/activate
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+pip install crawl4ai
+# Then manually install browsers later when network allows
+```
 
-# Install browsers
+### Solution 7: SSL Certificate Issues
+
+If your proxy intercepts SSL with custom certificates:
+
+```bash
+export NODE_EXTRA_CA_CERTS=/path/to/your/custom-ca.crt
 python -m playwright install chromium
-
-# Or with system dependencies
-python -m playwright install --with-deps chromium
 ```
-
-### Option 3: Use System Chrome/Chromium
-Configure Crawl4AI to use an existing Chrome installation:
-
-```python
-from crawl4ai import AsyncWebCrawler, BrowserConfig
-
-browser_config = BrowserConfig(
-    browser_type="chromium",
-    executable_path="/usr/bin/chromium-browser"  # Adjust path as needed
-)
-
-async with AsyncWebCrawler(config=browser_config) as crawler:
-    result = await crawler.arun(url="https://example.com")
-```
-
-### Option 4: Download Browser Manually
-Download the browser archive from an unrestricted location and extract to:
-- `~/.cache/ms-playwright/chromium-1200/`
 
 ## What the Test Scripts Do
 
@@ -187,3 +282,16 @@ Once browser installation is resolved, the test scripts will:
 For issues with Crawl4AI itself (not network restrictions):
 - GitHub Issues: https://github.com/unclecode/crawl4ai/issues
 - Documentation: https://docs.crawl4ai.com/troubleshooting
+
+## References & Sources
+
+These solutions are based on official documentation and community-validated workarounds:
+
+1. [Playwright Browser Installation - Official Docs](https://playwright.dev/python/docs/browsers)
+2. [Crawl4AI Issue #377 - Chromium distribution not found](https://github.com/unclecode/crawl4ai/issues/377)
+3. [Crawl4AI Issue #503 - Browser path detection failing](https://github.com/unclecode/crawl4ai/issues/503)
+4. [Playwright Python Issue #1292 - Manual browser installation](https://github.com/microsoft/playwright-python/issues/1292)
+5. [Playwright Issue #3960 - Download failed 403 errors](https://github.com/microsoft/playwright/issues/3960)
+6. [Playwright Issue #20984 - Firewall and proxy browser download](https://github.com/microsoft/playwright/issues/20984)
+7. [How to Solve Playwright 403 Forbidden Error - ZenRows](https://www.zenrows.com/blog/playwright-403)
+8. [How to Install Playwright - Comprehensive Guide 2026](https://www.testmu.ai/learning-hub/how-to-install-playwright/)

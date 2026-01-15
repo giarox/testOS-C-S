@@ -6,7 +6,7 @@ This demonstrates simple web crawling with clean Markdown extraction.
 
 import asyncio
 import os
-from crawl4ai import AsyncWebCrawler
+from crawl4ai import AsyncWebCrawler, BrowserConfig
 from pathlib import Path
 
 
@@ -28,8 +28,15 @@ async def basic_crawl_test():
     print(f"\n📍 Target URL: {test_url}")
     print("🚀 Starting crawler...\n")
 
+    # Configure to use bundled Chromium (most portable, no system Chrome needed)
+    browser_config = BrowserConfig(
+        browser_type="chromium",
+        headless=True,
+        verbose=True
+    )
+
     try:
-        async with AsyncWebCrawler(verbose=True) as crawler:
+        async with AsyncWebCrawler(config=browser_config) as crawler:
             # Perform the crawl
             result = await crawler.arun(url=test_url)
 
