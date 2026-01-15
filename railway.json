@@ -5,15 +5,13 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": null,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   },
-  "image": "unclecode/crawl4ai:latest",
   "env": {
     "PORT": {
-      "default": "11235",
-      "description": "Port for Crawl4AI API"
+      "default": "8080",
+      "description": "Port for the static docs site"
     }
   }
 }
